@@ -230,7 +230,7 @@ while running:
     player.update(pressed_keys)
 
     # fill screen with color
-    screen.fill((29, 32, 33))
+    screen.fill((0, 100, 200))
 
     # draw all sprites
     for entity in all_sprites:
