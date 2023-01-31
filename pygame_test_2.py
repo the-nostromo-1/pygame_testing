@@ -13,6 +13,7 @@ import random
 
 # importing pygame.locals for easier access to key coordinates
 from pygame.locals import (
+    RLEACCEL,
     K_UP,
     K_DOWN,
     K_LEFT,
@@ -26,6 +27,37 @@ from pygame.locals import (
 SCREEN_WIDTH = 800
 SCREEN_HEIGTH = 600
 
+# initialize pygame
+pygame.init()
+
+# Setup for sounds. Defaults are good.
+# must call before pygame.init if you want to change defaults
+pygame.mixer.init()
+
+# create the screen object
+# the size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
+# pygame.display.set_mode returns a "Surface" object
+# must be initialized before any images are loaded
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGTH))
+
+# Load and play background music
+# Sound source: http://ccmixter.org/files/Apoxode/59262
+# License: https://creativecommons.org/licenses/by/3.0/
+pygame.mixer.music.load(
+    "/Users/djt/Desktop/testing_folder/pygame_testing/sound_assets/Apoxode.mp3")
+# loop music infinitely by putting "loops=-1"
+pygame.mixer.music.play(loops=-1)
+
+
+# Load all sound files
+# Sound sources: Jon Fincher
+move_up_sound = pygame.mixer.Sound(
+    "/Users/djt/Desktop/testing_folder/pygame_testing/sound_assets/Rising_putter.oga")
+move_down_sound = pygame.mixer.Sound(
+    "/Users/djt/Desktop/testing_folder/pygame_testing/sound_assets/Falling_putter.oga")
+collision_sound = pygame.mixer.Sound(
+    "/Users/djt/Desktop/testing_folder/pygame_testing/sound_assets/Collision.oga")
+
 # Define a Player object by extending pygame.sprite.Sprite
 # The surface drawn on the screen is now an attribute of 'player'
 
@@ -34,9 +66,14 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
         # defining and initializing and setting dimensions of .surf for this class
-        self.surf = pygame.Surface((75, 25))
-        # making self surface white
-        self.surf.fill((251, 73, 52))
+        # self.surf = pygame.Surface((75, 25))
+        # making self surface colored
+        # self.surf.fill((251, 73, 52))
+        # loading image for player character
+        self.surf = pygame.image.load(
+            "/Users/djt/Desktop/testing_folder/pygame_testing/image_assets/jet.png").convert()
+        # defining color that pygame will render as transparent
+        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
         # defining and initializing .rect for this class
         self.rect = self.surf.get_rect()
 
@@ -45,9 +82,13 @@ class Player(pygame.sprite.Sprite):
         if pressed_keys[K_UP]:
             # moving up the y axis
             self.rect.move_ip(0, -5)
+            # playing sound when event happens
+            move_up_sound.play()
         if pressed_keys[K_DOWN]:
             # moving down the y axis
             self.rect.move_ip(0, 5)
+            # playing sound when event happens
+            move_down_sound.play()
         if pressed_keys[K_RIGHT]:
             # moving right on the x axis
             self.rect.move_ip(5, 0)
@@ -74,9 +115,14 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super(Enemy, self).__init__()
         # defining and initializing and setting dimensions of .surf for this class
-        self.surf = pygame.Surface((25, 15))
+        # self.surf = pygame.Surface((25, 15))
         # making self surface orange
-        self.surf.fill((254, 128, 25))
+        # self.surf.fill((254, 128, 25))
+        # loading image for the enemies
+        self.surf = pygame.image.load(
+            "/Users/djt/Desktop/testing_folder/pygame_testing/image_assets/missile.png").convert()
+        # definig color that pygame will render as transparent
+        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
         # defining and initializing .rect for this class
         self.rect = self.surf.get_rect(
             center=(
@@ -95,22 +141,42 @@ class Enemy(pygame.sprite.Sprite):
         if self.rect.right < 0:
             self.kill()
 
+# Define the cloud object by extending pygame.sprite.Sprite
+# Use an image for a better-looking sprite
+
+
+class Cloud(pygame.sprite.Sprite):
+    def __init__(self):
+        super(Cloud, self).__init__()
+        self.surf = pygame.image.load(
+            "/Users/djt/Desktop/testing_folder/pygame_testing/image_assets/cloud.png").convert()
+        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
+        self.rect = self.surf.get_rect(
+            center=(
+                random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
+                random.randint(0, SCREEN_HEIGTH)
+            )
+        )
+        self.speed = random.randint(2, 3)
+
+    def update(self):
+        self.rect.move_ip(-self.speed, 0)
+        if self.rect.right < 0:
+            self.kill()
+
 
 # instantiate player. Right now, this is just a rectangle.
 player = Player()
 
-# initialize pygame
-pygame.init()
+# Setup the clock for a decent framerate
+clock = pygame.time.Clock()
 
-# create the screen object
-# the size is determined by the constant SCREEN_WIDTH and SCREEN_HEIGHT
-# pygame.display.set_mode returns a "Surface" object
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGTH))
 
 # create groups to hold enemy sprites and all sprites
 # - enemies is used for collision detection and position updates
 # - all_sprites is used for rendering
 enemies = pygame.sprite.Group()
+clouds = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
@@ -119,8 +185,10 @@ all_sprites.add(player)
 # the last event pygame reserves is called USEREVENT,
 # so defining ADDENEMY = pygame.USEREVENT + 1 ensures it’s unique.
 ADDENEMY = pygame.USEREVENT + 1
+ADDCLOUD = pygame.USEREVENT + 2
 # sets timer to call event every 250 milliseconds
 pygame.time.set_timer(ADDENEMY, 250)
+pygame.time.set_timer(ADDCLOUD, 1000)
 
 # running variable
 running = True
@@ -145,8 +213,16 @@ while running:
             enemies.add(new_enemy)
             all_sprites.add(new_enemy)
 
+        # add cloud
+        elif event.type == ADDCLOUD:
+            new_cloud = Cloud()
+            clouds.add(new_cloud)
+            all_sprites.add(new_cloud)
+
     # update enemy position
     enemies.update()
+    # update cloud position
+    clouds.update()
 
     # Get the set of keys pressed and check for user input
     pressed_keys = pygame.key.get_pressed()
@@ -160,26 +236,23 @@ while running:
     for entity in all_sprites:
         screen.blit(entity.surf, entity.rect)
 
+    # check if any enemies have collided with the player
+    if pygame.sprite.spritecollideany(player, enemies):
+        # if collision, kill player
+        player.kill()
+        # Stop any moving sounds and play the collision sound
+        move_up_sound.stop()
+        move_down_sound.stop()
+        collision_sound.play()
+        # quit game
+        running = False
+
     # flip everything to the display
     pygame.display.flip()
 
-    # create a surface and pass in a tuple containing its length and width
-    # my_surface = pygame.Surface((50, 50))
-    # give the surface a color to separate it from the background
-    # my_surface.fill((251, 73, 52))
-    # my_rectangle = my_surface.get_rect()
+    # Ensure program maintains a rate of 30 frames per second
+    clock.tick(30)
 
-    # .blit() stands for Block Transfer and .blit() is how you copy the contents of one Surface to another.
-    # .blit() takes two arguments: the Surface to draw and the location on the other Surface to draw the new one
-    # this line says "Draw surf onto the screen at the center"
-    # screen.blit(my_surface, (SCREEN_WIDTH/2, SCREEN_HEIGTH/2))
-    # pygame.display.flip()
-
-    # put the center of surf at the center of the display
-    # surface_center = (
-    #     (SCREEN_WIDTH - my_surface.get_width())/2,
-    #     (SCREEN_HEIGTH - my_surface.get_height())/2
-    # )
-
-    # draw player.surf at the new coordinates
-    # screen.blit(player.surf, player.rect)
+# stop all music after loop ends
+pygame.mixer.music.stop()
+pygame.mixer.quit()
