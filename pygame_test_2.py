@@ -114,6 +114,14 @@ enemies = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
+# create a custom event for adding a new enemy
+# pygame defines events internally as integers, so you need to define a new event with a unique integer.
+# the last event pygame reserves is called USEREVENT,
+# so defining ADDENEMY = pygame.USEREVENT + 1 ensures it’s unique.
+ADDENEMY = pygame.USEREVENT + 1
+# sets timer to call event every 250 milliseconds
+pygame.time.set_timer(ADDENEMY, 250)
+
 # running variable
 running = True
 
@@ -130,38 +138,48 @@ while running:
         elif event.type == QUIT:
             running = False
 
-        # Get the set of keys pressed and check for user input
-        pressed_keys = pygame.key.get_pressed()
-        # Update the player sprite based on user keypresses
-        player.update(pressed_keys)
+        # add enemy
+        elif event.type == ADDENEMY:
+            # create the new enemy and add it to sprite groups
+            new_enemy = Enemy()
+            enemies.add(new_enemy)
+            all_sprites.add(new_enemy)
 
-        # fill screen with color
-        screen.fill((29, 32, 33))
+    # update enemy position
+    enemies.update()
 
-        # draw all sprites
-        for entity in all_sprites:
-            screen.blit(entity.surf, entity.rect)
+    # Get the set of keys pressed and check for user input
+    pressed_keys = pygame.key.get_pressed()
+    # Update the player sprite based on user keypresses
+    player.update(pressed_keys)
 
-        # flip everything to the display
-        pygame.display.flip()
+    # fill screen with color
+    screen.fill((29, 32, 33))
 
-        # create a surface and pass in a tuple containing its length and width
-        # my_surface = pygame.Surface((50, 50))
-        # give the surface a color to separate it from the background
-        # my_surface.fill((251, 73, 52))
-        # my_rectangle = my_surface.get_rect()
+    # draw all sprites
+    for entity in all_sprites:
+        screen.blit(entity.surf, entity.rect)
 
-        # .blit() stands for Block Transfer and .blit() is how you copy the contents of one Surface to another.
-        # .blit() takes two arguments: the Surface to draw and the location on the other Surface to draw the new one
-        # this line says "Draw surf onto the screen at the center"
-        # screen.blit(my_surface, (SCREEN_WIDTH/2, SCREEN_HEIGTH/2))
-        # pygame.display.flip()
+    # flip everything to the display
+    pygame.display.flip()
 
-        # put the center of surf at the center of the display
-        # surface_center = (
-        #     (SCREEN_WIDTH - my_surface.get_width())/2,
-        #     (SCREEN_HEIGTH - my_surface.get_height())/2
-        # )
+    # create a surface and pass in a tuple containing its length and width
+    # my_surface = pygame.Surface((50, 50))
+    # give the surface a color to separate it from the background
+    # my_surface.fill((251, 73, 52))
+    # my_rectangle = my_surface.get_rect()
 
-        # draw player.surf at the new coordinates
-        # screen.blit(player.surf, player.rect)
+    # .blit() stands for Block Transfer and .blit() is how you copy the contents of one Surface to another.
+    # .blit() takes two arguments: the Surface to draw and the location on the other Surface to draw the new one
+    # this line says "Draw surf onto the screen at the center"
+    # screen.blit(my_surface, (SCREEN_WIDTH/2, SCREEN_HEIGTH/2))
+    # pygame.display.flip()
+
+    # put the center of surf at the center of the display
+    # surface_center = (
+    #     (SCREEN_WIDTH - my_surface.get_width())/2,
+    #     (SCREEN_HEIGTH - my_surface.get_height())/2
+    # )
+
+    # draw player.surf at the new coordinates
+    # screen.blit(player.surf, player.rect)
