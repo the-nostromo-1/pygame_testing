@@ -18,24 +18,19 @@ FRAME_RATE = 60
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGTH))
 clock = pygame.time.Clock()
 
-testFont = pygame.font.Font(
-    "/Users/djt/Desktop/pygame_testing/font_assets/Pixeltype.ttf", 50)
+testFont = pygame.font.Font("/Users/djt/Desktop/pygame_testing/font_assets/Pixeltype.ttf", 50)
 textSurface = testFont.render('My Game', False, (254, 128, 25))
 
-background = pygame.image.load(
-    "/Users/djt/Desktop/pygame_testing/image_assets/sky.png").convert_alpha()
+background = pygame.image.load("/Users/djt/Desktop/pygame_testing/image_assets/sky.png").convert_alpha()
 background = pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGTH))
 
-grass = pygame.image.load(
-    "/Users/djt/Desktop/pygame_testing/image_assets/ground.png")
+grass = pygame.image.load("/Users/djt/Desktop/pygame_testing/image_assets/ground.png")
 grass = pygame.transform.scale(grass, (SCREEN_WIDTH, 200))
 
-snail = pygame.image.load(
-    "/Users/djt/Desktop/pygame_testing/image_assets/snail/snail1.png").convert_alpha()
+snail = pygame.image.load("/Users/djt/Desktop/pygame_testing/image_assets/snail/snail1.png").convert_alpha()
 snailXPos = 700
 
-player = pygame.image.load(
-    "/Users/djt/Desktop/pygame_testing/image_assets/Player/player_walk_1.png").convert_alpha()
+player = pygame.image.load("/Users/djt/Desktop/pygame_testing/image_assets/Player/player_walk_1.png").convert_alpha()
 playerRect = player.get_rect(midbottom=(SCREEN_WIDTH/3, 325))
 
 while True:
@@ -46,9 +41,11 @@ while True:
     screen.blit(background, (0, 0))
     screen.blit(grass, (0, 325))
     screen.blit(textSurface, (350, 10))
+
     snailXPos -= 0.75
     if snailXPos < (-50):
         snailXPos = 700
+
     screen.blit(snail, (snailXPos, 295))
     screen.blit(player, playerRect)
 
