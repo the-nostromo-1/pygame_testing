@@ -41,16 +41,10 @@ while True:
         if event.type == pygame.QUIT:
             exit()
 
-        # getting mouse position
-        if event.type == pygame.MOUSEMOTION:
-            if playerRect.collidepoint(event.pos):
-                print("collision")
-
         if event.type == pygame.KEYDOWN:
-            print("key down")
-
-        if event.type == pygame.KEYUP:
-            print("key up")
+            if playerRect.bottom >= 325: # forces player to be back on ground
+                # before they can jump again
+                playerGravity = -20
 
     screen.blit(background, (0, 0))
     screen.blit(grass, (0, 325))
@@ -64,13 +58,19 @@ while True:
     if snailRect.right <= 0:
         snailRect.left = SCREEN_WIDTH
 
+    screen.blit(snail, snailRect)
+
     # print(playerRect.left)
     # keys = pygame.key.get_pressed()
     # if keys[pygame.K_SPACE]:
     #     print("jump")
 
+    # Player ################################################
+    playerGravity += 1
+    playerRect.y += playerGravity # simulating exponential gravity
+    if playerRect.bottom >= 325:
+        playerRect.bottom = 325
     screen.blit(player, playerRect)
-    screen.blit(snail, snailRect)
 
     # .colliderect returns '0' or '1': 0 = no collision, 1 = collision
     # if playerRect.colliderect(snailRect):
