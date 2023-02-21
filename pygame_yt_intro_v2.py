@@ -18,6 +18,8 @@ FRAME_RATE = 60
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGTH))
 clock = pygame.time.Clock()
 
+gameActive = True
+
 scoreFont = pygame.font.Font("/Users/djt/Desktop/pyGameTesting/font_assets/Pixeltype.ttf", 50)
 scoreSurface = scoreFont.render('My Game', False, (64, 64, 64))
 scoreRect = scoreSurface.get_rect(center=(SCREEN_WIDTH/2, 50))
@@ -46,32 +48,37 @@ while True:
                 # before they can jump again
                 playerGravity = -20
 
-    screen.blit(background, (0, 0))
-    screen.blit(grass, (0, 325))
-    pygame.draw.line(screen, 'Black', (0, 0), (SCREEN_WIDTH, SCREEN_HEIGTH))
-    pygame.draw.rect(screen, '#c0e8ec', scoreRect)
-    pygame.draw.rect(screen, '#c0e8ec', scoreRect, 10)
-    screen.blit(scoreSurface, scoreRect)
+    if gameActive:
+        screen.blit(background, (0, 0))
+        screen.blit(grass, (0, 325))
+        pygame.draw.line(screen, 'Black', (0, 0), (SCREEN_WIDTH, SCREEN_HEIGTH))
+        pygame.draw.rect(screen, '#c0e8ec', scoreRect)
+        pygame.draw.rect(screen, '#c0e8ec', scoreRect, 10)
+        screen.blit(scoreSurface, scoreRect)
 
-    snailRect.x -= 1.75
+        snailRect.x -= 1.75
 
-    if snailRect.right <= 0:
-        snailRect.left = SCREEN_WIDTH
+        if snailRect.right <= 0:
+            snailRect.left = SCREEN_WIDTH
 
-    screen.blit(snail, snailRect)
+        screen.blit(snail, snailRect)
 
-    # print(playerRect.left)
-    # keys = pygame.key.get_pressed()
-    # if keys[pygame.K_SPACE]:
-    #     print("jump")
+        # print(playerRect.left)
+        # keys = pygame.key.get_pressed()
+        # if keys[pygame.K_SPACE]:
+        #     print("jump")
 
-    # Player ################################################
-    playerGravity += 1
-    playerRect.y += playerGravity # simulating exponential gravity
-    if playerRect.bottom >= 325:
-        playerRect.bottom = 325
-    screen.blit(player, playerRect)
+        # Player ################################################
+        playerGravity += 1
+        playerRect.y += playerGravity # simulating exponential gravity
+        if playerRect.bottom >= 325:
+            playerRect.bottom = 325
+        screen.blit(player, playerRect)
 
+        # Collision ##############################################
+        if snailRect.colliderect(playerRect):
+            pygame.quit()
+            exit()
     # .colliderect returns '0' or '1': 0 = no collision, 1 = collision
     # if playerRect.colliderect(snailRect):
     #     print("collision")
@@ -85,10 +92,6 @@ while True:
 
     pygame.display.update()
     clock.tick(FRAME_RATE)
-
-
-
-
 
 
 
